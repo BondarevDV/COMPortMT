@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
-
+    graph = new Form();
     connect(ui->BaudRateBox, SIGNAL(currentIndexChanged(int)) ,this, SLOT(checkCustomBaudRatePolicy(int)));
     ui->BaudRateBox->addItem(QLatin1String("9600"), QSerialPort::Baud9600);
     ui->BaudRateBox->addItem(QLatin1String("19200"), QSerialPort::Baud19200);
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     thread_New->start();
     this->on_Btn_Serch_clicked();
 
-    connect(this, SIGNAL(sendData(QByteArray)), graph, SLOT(recieveData(QByteArray)));
+    connect(this,SIGNAL(sendData(QByteArray)), graph, SLOT(recieveData(QByteArray)));
 }
 //++++++++[Процедура закрытия приложения]+++++++++++++++++++++++++++++++++++++++++++++
 MainWindow::~MainWindow()
@@ -123,12 +123,15 @@ savesettings(ui->PortNameBox->currentText(), ui->BaudRateBox->currentText().toIn
 void MainWindow::CreateGraph()
 {
     qDebug() << "Create graph";
-    graph.show();
+    graph->show();
 }
 
-void MainWindow::btnВrawingGraph()
+void MainWindow::recieveData(QByteArray data)
 {
-     emit sendData(received_data);
+     qDebug() << "recieveData";
+     emit sendData(data);
 }
+
+
 
 

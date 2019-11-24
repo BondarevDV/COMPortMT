@@ -20,11 +20,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
     ~MainWindow();
-    Form graph;
+    Form* graph;
 private:
     QByteArray received_data;
 signals:
-
     void savesettings(QString name, int baudrate, int DataBits, int Parity, int StopBits, int FlowControl);
     void writeData(QByteArray data);
     void sendData(QByteArray data);
@@ -36,8 +35,7 @@ private slots:
     void on_cEnterText_returnPressed();
     void on_BtnSave_clicked();
     void CreateGraph();
-
-    void btnВrawingGraph();
+    void recieveData(QByteArray data);
 
 
 
