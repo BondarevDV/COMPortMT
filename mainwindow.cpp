@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     graph = new Form();
+    gistogram = new Graph();
     connect(ui->BaudRateBox, SIGNAL(currentIndexChanged(int)) ,this, SLOT(checkCustomBaudRatePolicy(int)));
     ui->BaudRateBox->addItem(QLatin1String("9600"), QSerialPort::Baud9600);
     ui->BaudRateBox->addItem(QLatin1String("19200"), QSerialPort::Baud19200);
@@ -57,9 +58,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(thread_New, SIGNAL(finished()), PortNew, SLOT(deleteLater()));//Удалить к чертям поток
     connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(deleteLater()));//Удалить к чертям поток
     connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(WriteSettingsPort(QString,int,int,int,int,int)));//Слот - ввод настроек!
-    connect(ui->BtnConnect, SIGNAL(clicked()),PortNew,SLOT(ConnectPort()));
+    // connect(ui->BtnConnect, SIGNAL(clicked()),PortNew,SLOT(ConnectPort()));
+    connect(ui->BtnConnect, SIGNAL(clicked()),this,SLOT(on_BtnSave_clicked()));
     connect(ui->BtnDisconect, SIGNAL(clicked()),PortNew,SLOT(DisconnectPort()));
-    connect(ui->BtnSave, SIGNAL(clicked()),this,SLOT(on_BtnSave_clicked()));
     connect(PortNew, SIGNAL(outPort(QString)), this, SLOT(Print(QString)));//Лог ошибок
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     connect(ui->btn_graph, SIGNAL(clicked()), this, SLOT(CreateGraph()));
@@ -121,6 +122,7 @@ void MainWindow::Print(QString data)
 
 void MainWindow::on_BtnSave_clicked()
 {
+    qDebug()<< "on_BtnSave_clicked";
     qDebug()<< ui->PortNameBox->currentText();
     savesettings(ui->PortNameBox->currentText(),
                  ui->BaudRateBox->currentText().toInt(),
@@ -134,7 +136,8 @@ void MainWindow::on_BtnSave_clicked()
 void MainWindow::CreateGraph()
 {
     qDebug() << "Create graph";
-    graph->show();
+    gistogram->show();
+    // graph->show();
 }
 
 void MainWindow::recieveData(QByteArray data)

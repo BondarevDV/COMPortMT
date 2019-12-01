@@ -28,7 +28,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    cgistogram.cpp \
     controller.cpp \
+    graph.cpp \
         mainwindow.cpp \
     port.cpp \
     qcustomplot.cpp \
@@ -36,11 +38,14 @@ SOURCES += main.cpp\
     shproto.cpp
 
 HEADERS  += mainwindow.h \
+    cgistogram.h \
     controller.h \
+    graph.h \
     port.h \
     form.h \
     qcustomplot.h \
     shproto.h
 
 FORMS    += mainwindow.ui \
-    form.ui
+    form.ui \
+    graph.ui

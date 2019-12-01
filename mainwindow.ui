@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>795</width>
+    <width>796</width>
     <height>330</height>
    </rect>
   </property>
@@ -242,15 +242,7 @@
       <height>31</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="BtnSave">
-       <property name="text">
-        <string>Save Settings</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
    <widget class="QPushButton" name="btn_graph">
     <property name="geometry">

@@ -20,17 +20,18 @@ void Port::processPort(){
 
 void Port::WriteSettingsPort(QString name, int baudrate,int DataBits,
                          int Parity,int StopBits, int FlowControl){
-    qDebug()<<name;
+    qDebug()<<"WriteSettingsPort";
+    qDebug()<<"SettingsPort.name: "<< name;
     SettingsPort.name = name;
     SettingsPort.baudRate = static_cast<QSerialPort::BaudRate>(baudrate);
     SettingsPort.dataBits = static_cast<QSerialPort::DataBits>(DataBits);
     SettingsPort.parity = static_cast<QSerialPort::Parity>(Parity);
     SettingsPort.stopBits = static_cast<QSerialPort::StopBits>(StopBits);
     SettingsPort.flowControl = static_cast<QSerialPort::FlowControl>(FlowControl);
+    this->ConnectPort();
 }
 
 void Port :: ConnectPort(void){//
-
     COMPort.setPortName(SettingsPort.name);
     qDebug()<<"ConnectPort: "<<SettingsPort.name;
     if (COMPort.open(QIODevice::ReadWrite)) {
@@ -41,7 +42,7 @@ void Port :: ConnectPort(void){//
                 && COMPort.setFlowControl(SettingsPort.flowControl))
         {
             if (COMPort.isOpen()){
-                error_((SettingsPort.name+ " >> Открыт!\r").toLocal8Bit());
+                error_((SettingsPort.name.toLocal8Bit() + " >> Открыт!\r"));
             }
         } else {
             COMPort.close();

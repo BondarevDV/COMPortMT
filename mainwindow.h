@@ -7,6 +7,7 @@
 #include "port.h"
 #include "qcustomplot.h"
 #include  "form.h"
+#include  "graph.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,8 @@ public:
 
     ~MainWindow();
     Form* graph;
+    Graph* gistogram;
+
 private:
     QByteArray received_data;
 signals:
