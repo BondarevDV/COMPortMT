@@ -46,26 +46,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->FlowControlBox->addItem(QLatin1String("RTS/CTS"), QSerialPort::HardwareControl);
     ui->FlowControlBox->addItem(QLatin1String("XON/XOFF"), QSerialPort::SoftwareControl);
     connect(ui->cBtnSend,SIGNAL(clicked()),this, SLOT(on_cEnterText_returnPressed()) );
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     QThread *thread_New = new QThread;//Создаем поток для порта платы
     Port *PortNew = new Port();//Создаем обьект по классу
     PortNew->moveToThread(thread_New);//помешаем класс  в поток
-    PortNew->thisPort.moveToThread(thread_New);//Помещаем сам порт в поток
+    PortNew->COMPort.moveToThread(thread_New);//Помещаем сам порт в поток
     connect(PortNew, SIGNAL(error_(QString)), this, SLOT(Print(QString)));//Лог ошибок
-    connect(thread_New, SIGNAL(started()), PortNew, SLOT(process_Port()));//Переназначения метода run
+    connect(thread_New, SIGNAL(started()), PortNew, SLOT(processPort()));//Переназначения метода run
     connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(quit()));//Переназначение метода выход
     connect(thread_New, SIGNAL(finished()), PortNew, SLOT(deleteLater()));//Удалить к чертям поток
     connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(deleteLater()));//Удалить к чертям поток
-    connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(Write_Settings_Port(QString,int,int,int,int,int)));//Слот - ввод настроек!
+    connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(WriteSettingsPort(QString,int,int,int,int,int)));//Слот - ввод настроек!
     connect(ui->BtnConnect, SIGNAL(clicked()),PortNew,SLOT(ConnectPort()));
     connect(ui->BtnDisconect, SIGNAL(clicked()),PortNew,SLOT(DisconnectPort()));
+    connect(ui->BtnSave, SIGNAL(clicked()),this,SLOT(on_BtnSave_clicked()));
     connect(PortNew, SIGNAL(outPort(QString)), this, SLOT(Print(QString)));//Лог ошибок
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
-
     connect(ui->btn_graph, SIGNAL(clicked()), this, SLOT(CreateGraph()));
     thread_New->start();
-    this->on_Btn_Serch_clicked();
-
+    this->on_Btn_Search_clicked();
     connect(this,SIGNAL(sendData(QByteArray)), graph, SLOT(recieveData(QByteArray)));
 }
 //++++++++[Процедура закрытия приложения]+++++++++++++++++++++++++++++++++++++++++++++
@@ -76,7 +75,7 @@ MainWindow::~MainWindow()
 }
 
 //++++++++[Процедура пределения подключенных портов]+++++++++++++++++++++++++++++++++++
-void MainWindow::on_Btn_Serch_clicked()
+void MainWindow::on_Btn_Search_clicked()
 {
     ui->PortNameBox->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
@@ -97,10 +96,18 @@ void MainWindow::checkCustomBaudRatePolicy(int idx)
 //+++++++++++++[Процедура ввода данных из строки]++++++++++++++++++++++++++++++++++++++++
 void MainWindow::on_cEnterText_returnPressed()
 {
-    QByteArray data; // Текстовая переменная
-    data = ui->cEnterText->text().toLocal8Bit().toHex() + '\r'; // Присвоение "data" значения из EnterText
+   QByteArray data;
+   QDataStream stream(&data, QIODevice::WriteOnly);
+   QStringList longList = ui->cEnterText->text().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+   qDebug()<<longList.size();
+   bool ok;
+   for (int i = 0; i < longList.size(); i++) {
+       qDebug()<<sizeof(static_cast<qint8>(longList.at(i).toInt(&ok, 16)));
+       data.append(static_cast<qint8>(longList.at(i).toInt(&ok, 16)));
+   }
+    qDebug()<<data.length();
     writeData(data); // Отправка данных в порт
-    Print(data); // Вывод данных в консоль
+    Print(QString::fromStdString(data.toHex().toStdString())); // Вывод данных в консоль
 }
 
 
@@ -108,15 +115,19 @@ void MainWindow::on_cEnterText_returnPressed()
 //+++++++++++++[Процедура вывода данных в консоль]++++++++++++++++++++++++++++++++++++++++
 void MainWindow::Print(QString data)
 {
-    ui->consol->textCursor().insertText(data+'\r'); // Вывод текста в консоль
+    ui->consol->textCursor().insertText(data + '\r'); // Вывод текста в консоль
     ui->consol->moveCursor(QTextCursor::End);//Scroll
 }
 
 void MainWindow::on_BtnSave_clicked()
 {
-
-savesettings(ui->PortNameBox->currentText(), ui->BaudRateBox->currentText().toInt(),ui->DataBitsBox->currentText().toInt(),
-             ui->ParityBox->currentText().toInt(), ui->StopBitsBox->currentText().toInt(), ui->FlowControlBox->currentText().toInt());
+    qDebug()<< ui->PortNameBox->currentText();
+    savesettings(ui->PortNameBox->currentText(),
+                 ui->BaudRateBox->currentText().toInt(),
+                 ui->DataBitsBox->currentText().toInt(),
+                 ui->ParityBox->currentText().toInt(),
+                 ui->StopBitsBox->currentText().toInt(),
+                 ui->FlowControlBox->currentText().toInt());
 
 }
 
@@ -129,7 +140,7 @@ void MainWindow::CreateGraph()
 void MainWindow::recieveData(QByteArray data)
 {
      qDebug() << "recieveData";
-     emit sendData(data);
+     sendData(data);
 }
 
 

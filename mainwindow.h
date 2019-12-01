@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
 
     ~MainWindow();
     Form* graph;
@@ -29,7 +29,7 @@ signals:
     void sendData(QByteArray data);
 
 private slots:
-    void on_Btn_Serch_clicked();
+    void on_Btn_Search_clicked();
     void checkCustomBaudRatePolicy(int idx);
     void Print(QString data);
     void on_cEnterText_returnPressed();

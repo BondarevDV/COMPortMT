@@ -12,72 +12,79 @@ Port::~Port()
     emit finished_Port();
 }
 
-void Port :: process_Port(){
-    qDebug("Hello World in Thread!");
-    connect(&thisPort,SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
-    connect(&thisPort, SIGNAL(readyRead()),this,SLOT(ReadInPort()));
+void Port::processPort(){
+    qDebug("Start listen port");
+    connect(&COMPort,SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
+    connect(&COMPort, SIGNAL(readyRead()),this,SLOT(ReadInPort()));
 }
 
-void Port :: Write_Settings_Port(QString name, int baudrate,int DataBits,
+void Port::WriteSettingsPort(QString name, int baudrate,int DataBits,
                          int Parity,int StopBits, int FlowControl){
+    qDebug()<<name;
     SettingsPort.name = name;
-    SettingsPort.baudRate = (QSerialPort::BaudRate) baudrate;
-    SettingsPort.dataBits = (QSerialPort::DataBits) DataBits;
-    SettingsPort.parity = (QSerialPort::Parity) Parity;
-    SettingsPort.stopBits = (QSerialPort::StopBits) StopBits;
-    SettingsPort.flowControl = (QSerialPort::FlowControl) FlowControl;
+    SettingsPort.baudRate = static_cast<QSerialPort::BaudRate>(baudrate);
+    SettingsPort.dataBits = static_cast<QSerialPort::DataBits>(DataBits);
+    SettingsPort.parity = static_cast<QSerialPort::Parity>(Parity);
+    SettingsPort.stopBits = static_cast<QSerialPort::StopBits>(StopBits);
+    SettingsPort.flowControl = static_cast<QSerialPort::FlowControl>(FlowControl);
 }
 
 void Port :: ConnectPort(void){//
-    thisPort.setPortName(SettingsPort.name);
-    if (thisPort.open(QIODevice::ReadWrite)) {
-        if (thisPort.setBaudRate(SettingsPort.baudRate)
-                && thisPort.setDataBits(SettingsPort.dataBits)//DataBits
-                && thisPort.setParity(SettingsPort.parity)
-                && thisPort.setStopBits(SettingsPort.stopBits)
-                && thisPort.setFlowControl(SettingsPort.flowControl))
+
+    COMPort.setPortName(SettingsPort.name);
+    qDebug()<<"ConnectPort: "<<SettingsPort.name;
+    if (COMPort.open(QIODevice::ReadWrite)) {
+        if (COMPort.setBaudRate(SettingsPort.baudRate)
+                && COMPort.setDataBits(SettingsPort.dataBits)//DataBits
+                && COMPort.setParity(SettingsPort.parity)
+                && COMPort.setStopBits(SettingsPort.stopBits)
+                && COMPort.setFlowControl(SettingsPort.flowControl))
         {
-            if (thisPort.isOpen()){
+            if (COMPort.isOpen()){
                 error_((SettingsPort.name+ " >> Открыт!\r").toLocal8Bit());
             }
         } else {
-            thisPort.close();
-            error_(thisPort.errorString().toLocal8Bit());
+            COMPort.close();
+            error_(COMPort.errorString().toLocal8Bit());
           }
     } else {
-        thisPort.close();
-        error_(thisPort.errorString().toLocal8Bit());
+        COMPort.close();
+        error_(COMPort.errorString().toLocal8Bit());
     }
 }
 
 void Port::handleError(QSerialPort::SerialPortError error)//
 {
-    if ( (thisPort.isOpen()) && (error == QSerialPort::ResourceError)) {
-        error_(thisPort.errorString().toLocal8Bit());
+    if ( (COMPort.isOpen()) && (error == QSerialPort::ResourceError)) {
+        error_(COMPort.errorString().toLocal8Bit());
         DisconnectPort();
     }
 }//
 
 
 void  Port::DisconnectPort(){
-    if(thisPort.isOpen()){
-        thisPort.close();
+    if(COMPort.isOpen()){
+        COMPort.close();
         error_(SettingsPort.name.toLocal8Bit() + " >> Закрыт!\r");
     }
 }
-//ot tuta kovuratji!!!
+
 void Port :: WriteToPort(QByteArray data){
-    if(thisPort.isOpen()){
-        thisPort.write(data);
+    if(COMPort.isOpen()){
+        COMPort.write(data);
     }
 }
 //
 void Port :: ReadInPort(){
     QByteArray data;
-
-    data.append(thisPort.readAll());
-
-    outPort(data);
+    data.append(COMPort.readAll());
+    for (int i = 0; i < data.size(); i++) {
+        control_usb_data.fifo_set(static_cast<unsigned char>(data.at(i)));
+    }
+    outPort(QString("size = %1").arg(QString::number(control_usb_data.count())));
+    while (!control_usb_data.fifo_is_empty()){
+        outPort(QString::number(control_usb_data.fifo_get()));
+    }
 
     //((QString)(adr.toInt())).toLatin1().toHex()
 }

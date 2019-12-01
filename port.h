@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include "controller.h"
+
 
 struct Settings {
     QString name;
@@ -20,17 +22,18 @@ class Port : public QObject
 
 public:
 
-    explicit Port(QObject *parent = 0);
+    explicit Port(QObject *parent = nullptr);
 
     ~Port();
 
-    QSerialPort thisPort;
+    QSerialPort COMPort;
 
     Settings SettingsPort;
+    Controller control_usb_data;
 
 signals:
 
-    void finished_Port(); //
+    void finished_Port();
 
     void error_(QString err);
 
@@ -42,9 +45,9 @@ public slots:
 
     void ConnectPort(void);
 
-    void Write_Settings_Port(QString name, int baudrate, int DataBits, int Parity, int StopBits, int FlowControl);
+    void WriteSettingsPort(QString name, int baudrate, int DataBits, int Parity, int StopBits, int FlowControl);
 
-    void process_Port();
+    void processPort();
 
     void WriteToPort(QByteArray data);
 
