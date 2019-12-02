@@ -18,5 +18,5 @@ Graph::~Graph()
 
 void Graph::recieveData(QByteArray &data)
 {
-    qDebug()<<"recieveData: "<< data;
+    qDebug()<<"graph recieveData: "<< data;
 }

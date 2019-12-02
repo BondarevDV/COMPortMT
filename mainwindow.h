@@ -22,7 +22,7 @@ public:
 
     ~MainWindow();
     Form* graph;
-    Graph* gistogram;
+    Graph* histogram;
 
 private:
     QByteArray received_data;

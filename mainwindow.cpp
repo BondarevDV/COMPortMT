@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     graph = new Form();
-    gistogram = new Graph();
+    histogram = new Graph();
     connect(ui->BaudRateBox, SIGNAL(currentIndexChanged(int)) ,this, SLOT(checkCustomBaudRatePolicy(int)));
     ui->BaudRateBox->addItem(QLatin1String("9600"), QSerialPort::Baud9600);
     ui->BaudRateBox->addItem(QLatin1String("19200"), QSerialPort::Baud19200);
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btn_graph, SIGNAL(clicked()), this, SLOT(CreateGraph()));
     thread_New->start();
     this->on_Btn_Search_clicked();
-    connect(this,SIGNAL(sendData(QByteArray)), graph, SLOT(recieveData(QByteArray)));
+    connect(PortNew,SIGNAL(outPort(QByteArray)), histogram, SLOT(recieveData(QByteArray)));
 }
 //++++++++[Процедура закрытия приложения]+++++++++++++++++++++++++++++++++++++++++++++
 MainWindow::~MainWindow()
@@ -136,7 +136,7 @@ void MainWindow::on_BtnSave_clicked()
 void MainWindow::CreateGraph()
 {
     qDebug() << "Create graph";
-    gistogram->show();
+    histogram->show();
     // graph->show();
 }
 
