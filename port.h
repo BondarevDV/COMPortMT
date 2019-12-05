@@ -5,6 +5,8 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 #include "controller.h"
+//#include "shproto.h"
+#include "qshproto.h"
 
 
 struct Settings {
@@ -23,6 +25,7 @@ class Port : public QObject
 public:
 
     explicit Port(QObject *parent = nullptr);
+    qshproto data_transfer_protocol;
 
     ~Port();
 
@@ -50,6 +53,8 @@ public slots:
     void processPort();
 
     void WriteToPort(QByteArray data);
+    void WriteForProtocolToPort(QByteArray data);
+    void ReadForProtocolInPort();
 
     void ReadInPort();
 

@@ -2,13 +2,14 @@
 #define CONTROLLER_H
 
 #include <queue>
-
+#include <qshproto.h>
 class Controller
 {
 
 private:
     typedef unsigned char TYPE_rx;
     std::queue<TYPE_rx> usbRxBuff;
+    //qshproto Data_transfer_protocol;
 
 public:
 

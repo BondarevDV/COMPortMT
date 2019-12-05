@@ -71,10 +71,46 @@ void  Port::DisconnectPort(){
 }
 
 void Port :: WriteToPort(QByteArray data){
+    qDebug()<< data;
     if(COMPort.isOpen()){
         COMPort.write(data);
     }
 }
+
+void Port::WriteForProtocolToPort(QByteArray data)
+{
+    // Сборка пакета и передача:
+    data_transfer_protocol.shproto_packet_start(data_transfer_protocol.packet_tx, 0x03); //0x03 - код команды, для примера
+    std::string tx = data.toStdString();
+    for (int i = 0; i < data.length(); i++) {
+        data_transfer_protocol.shproto_packet_add_data(data_transfer_protocol.packet_tx, (unsigned char)tx[i]); //Добавляем один байт данных, для примера он равен нулю
+    }
+    data_transfer_protocol.shproto_packet_complete(data_transfer_protocol.packet_tx); //Добавляем маркер конца пакета и контрольную сумму
+    //output(data_transfer_protocol.packet_tx.data, data_transfer_protocol.packet_tx.len); //Передаём пакет через UART
+    QByteArray data_tx;
+
+    for (int i = 0; i < data_transfer_protocol.packet_tx->len ; i++) {
+        data_tx.append(data_transfer_protocol.packet_tx->data[i]);
+    }
+    if(COMPort.isOpen()){
+        COMPort.write(data_tx);
+    }
+}
+
+void Port :: ReadForProtocolInPort(){
+    QByteArray data;
+    data.append(COMPort.readAll());
+    for (int i = 0; i < data.size(); i++) {
+        control_usb_data.fifo_set(static_cast<unsigned char>(data.at(i)));
+    }
+    outPort(QString("size = %1").arg(QString::number(control_usb_data.count())));
+    while (!control_usb_data.fifo_is_empty()){
+        outPort(QString::number(control_usb_data.fifo_get()));
+    }
+
+    //((QString)(adr.toInt())).toLatin1().toHex()
+}
+
 //
 void Port :: ReadInPort(){
     QByteArray data;

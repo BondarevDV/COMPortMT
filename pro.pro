@@ -35,6 +35,8 @@ SOURCES += main.cpp\
     port.cpp \
     qcustomplot.cpp \
     form.cpp \
+    qshproto.cpp \
+    savefile.cpp \
     shproto.cpp
 
 HEADERS  += mainwindow.h \
@@ -44,6 +46,8 @@ HEADERS  += mainwindow.h \
     port.h \
     form.h \
     qcustomplot.h \
+    qshproto.h \
+    savefile.h \
     shproto.h
 
 FORMS    += mainwindow.ui \
